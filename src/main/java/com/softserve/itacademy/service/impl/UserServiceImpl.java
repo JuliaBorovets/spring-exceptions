@@ -20,7 +20,10 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User create(User user) {
+        if (user != null) {
             return userRepository.save(user);
+        }
+        throw new NullEntityReferenceException("User can't be 'null'!");
     }
 
     @Override
@@ -31,8 +34,14 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User update(User user) {
-            User oldUser = readById(user.getId());
+        if (user != null) {
+            if (userRepository.getUserByEmail(user.getEmail()) != null) {
                 return userRepository.save(user);
+            } else {
+                throw new EntityNotFoundException("Such User doesn't exist!");
+            }
+        }
+        throw new NullEntityReferenceException("User can't be 'null'!");
     }
 
     @Override
