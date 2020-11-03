@@ -1,5 +1,7 @@
 package com.softserve.itacademy.service.impl;
 
+import com.softserve.itacademy.exception.EntityNotFoundException;
+import com.softserve.itacademy.exception.NullEntityReferenceException;
 import com.softserve.itacademy.model.ToDo;
 import com.softserve.itacademy.repository.ToDoRepository;
 import com.softserve.itacademy.service.ToDoService;
@@ -27,27 +29,24 @@ public class ToDoServiceImpl implements ToDoService {
     }
 
     @Override
-    public ToDo readById(long id) {
+    public ToDo readById(long id) throws EntityNotFoundException {
         Optional<ToDo> optional = todoRepository.findById(id);
-            return optional.get();
+        return optional.orElseThrow(() -> new EntityNotFoundException("ToDo with id=" + id + " does not exist!"));
     }
 
     @Override
-    public ToDo update(ToDo todo) {
+    public ToDo update(ToDo todo) throws EntityNotFoundException {
         if (todo != null) {
-            if (todoRepository.findById(todo.getId()).isPresent()) {
-                return todoRepository.save(todo);
-            } else {
-                throw new EntityNotFoundException("Such ToDo doesn't exist!");
-            }
+            readById(todo.getId());
+            return todoRepository.save(todo);
         }
         throw new NullEntityReferenceException("ToDo can't be 'null'!");
     }
 
     @Override
-    public void delete(long id) {
+    public void delete(long id) throws EntityNotFoundException {
         ToDo todo = readById(id);
-            todoRepository.delete(todo);
+        todoRepository.delete(todo);
     }
 
     @Override
