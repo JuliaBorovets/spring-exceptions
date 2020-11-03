@@ -1,14 +1,15 @@
 package com.softserve.itacademy.service;
 
+import com.softserve.itacademy.exception.EntityNotFoundException;
 import com.softserve.itacademy.model.ToDo;
 
 import java.util.List;
 
 public interface ToDoService {
     ToDo create(ToDo todo);
-    ToDo readById(long id);
-    ToDo update(ToDo todo);
-    void delete(long id);
+    ToDo readById(long id) throws EntityNotFoundException;
+    ToDo update(ToDo todo) throws EntityNotFoundException;
+    void delete(long id) throws EntityNotFoundException;
 
     List<ToDo> getAll();
     List<ToDo> getByUserId(long userId);

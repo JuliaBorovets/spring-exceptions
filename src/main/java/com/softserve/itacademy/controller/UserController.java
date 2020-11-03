@@ -1,5 +1,6 @@
 package com.softserve.itacademy.controller;
 
+import com.softserve.itacademy.exception.EntityNotFoundException;
 import com.softserve.itacademy.model.User;
 import com.softserve.itacademy.service.RoleService;
 import com.softserve.itacademy.service.UserService;
@@ -28,7 +29,7 @@ public class UserController {
     }
 
     @PostMapping("/create")
-    public String create(@Validated @ModelAttribute("user") User user, BindingResult result) {
+    public String create(@Validated @ModelAttribute("user") User user, BindingResult result) throws EntityNotFoundException {
         if (result.hasErrors()) {
             return "create-user";
         }
@@ -39,14 +40,14 @@ public class UserController {
     }
 
     @GetMapping("/{id}/read")
-    public String read(@PathVariable long id, Model model) {
+    public String read(@PathVariable long id, Model model) throws EntityNotFoundException {
         User user = userService.readById(id);
         model.addAttribute("user", user);
         return "user-info";
     }
 
     @GetMapping("/{id}/update")
-    public String update(@PathVariable long id, Model model) {
+    public String update(@PathVariable long id, Model model) throws EntityNotFoundException {
         User user = userService.readById(id);
         model.addAttribute("user", user);
         model.addAttribute("roles", roleService.getAll());
@@ -55,7 +56,7 @@ public class UserController {
 
 
     @GetMapping("/{id}/delete")
-    public String delete(@PathVariable("id") long id) {
+    public String delete(@PathVariable("id") long id) throws EntityNotFoundException {
         userService.delete(id);
         return "redirect:/users/all";
     }

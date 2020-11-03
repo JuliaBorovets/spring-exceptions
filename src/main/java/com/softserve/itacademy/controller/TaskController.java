@@ -2,6 +2,7 @@ package com.softserve.itacademy.controller;
 
 import com.softserve.itacademy.dto.TaskDto;
 import com.softserve.itacademy.dto.TaskTransformer;
+import com.softserve.itacademy.exception.EntityNotFoundException;
 import com.softserve.itacademy.model.Priority;
 import com.softserve.itacademy.model.Task;
 import com.softserve.itacademy.service.StateService;
@@ -27,7 +28,7 @@ public class TaskController {
     }
 
     @GetMapping("/create/todos/{todo_id}")
-    public String create(@PathVariable("todo_id") long todoId, Model model) {
+    public String create(@PathVariable("todo_id") long todoId, Model model) throws EntityNotFoundException {
         model.addAttribute("task", new TaskDto());
         model.addAttribute("todo", todoService.readById(todoId));
         model.addAttribute("priorities", Priority.values());
@@ -36,7 +37,7 @@ public class TaskController {
 
     @PostMapping("/create/todos/{todo_id}")
     public String create(@PathVariable("todo_id") long todoId, Model model,
-                         @Validated @ModelAttribute("task") TaskDto taskDto, BindingResult result) {
+                         @Validated @ModelAttribute("task") TaskDto taskDto, BindingResult result) throws EntityNotFoundException {
         if (result.hasErrors()) {
             model.addAttribute("todo", todoService.readById(todoId));
             model.addAttribute("priorities", Priority.values());
@@ -52,7 +53,7 @@ public class TaskController {
     }
 
     @GetMapping("/{task_id}/update/todos/{todo_id}")
-    public String update(@PathVariable("task_id") long taskId, @PathVariable("todo_id") long todoId, Model model) {
+    public String update(@PathVariable("task_id") long taskId, @PathVariable("todo_id") long todoId, Model model) throws EntityNotFoundException {
         TaskDto taskDto = TaskTransformer.convertToDto(taskService.readById(taskId));
         model.addAttribute("task", taskDto);
         model.addAttribute("priorities", Priority.values());
@@ -62,7 +63,7 @@ public class TaskController {
 
     @PostMapping("/{task_id}/update/todos/{todo_id}")
     public String update(@PathVariable("task_id") long taskId, @PathVariable("todo_id") long todoId, Model model,
-                         @Validated @ModelAttribute("task")TaskDto taskDto, BindingResult result) {
+                         @Validated @ModelAttribute("task")TaskDto taskDto, BindingResult result) throws EntityNotFoundException {
         if (result.hasErrors()) {
             model.addAttribute("priorities", Priority.values());
             model.addAttribute("states", stateService.getAll());
@@ -78,7 +79,7 @@ public class TaskController {
     }
 
     @GetMapping("/{task_id}/delete/todos/{todo_id}")
-    public String delete(@PathVariable("task_id") long taskId, @PathVariable("todo_id") long todoId) {
+    public String delete(@PathVariable("task_id") long taskId, @PathVariable("todo_id") long todoId) throws EntityNotFoundException {
         taskService.delete(taskId);
         return "redirect:/todos/" + todoId + "/tasks";
     }
