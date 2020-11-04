@@ -7,6 +7,7 @@ import com.softserve.itacademy.model.User;
 import java.util.List;
 
 public interface UserService {
+
     User create(User user) throws NullEntityReferenceException;
     User readById(long id) throws EntityNotFoundException;
     User update(User user) throws EntityNotFoundException, NullEntityReferenceException;

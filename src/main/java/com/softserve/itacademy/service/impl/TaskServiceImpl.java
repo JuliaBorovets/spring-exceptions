@@ -35,7 +35,9 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public Task update(Task task) throws EntityNotFoundException {
+
             if (!task.getName().isEmpty()) {
+
             Task oldTask = readById(task.getId());
             return taskRepository.save(task);
         }

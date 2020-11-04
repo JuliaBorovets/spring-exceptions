@@ -41,6 +41,7 @@ public class ToDoController {
 
     @PostMapping("/create/users/{owner_id}")
     public String create(@PathVariable("owner_id") long ownerId, @Validated @ModelAttribute("todo") ToDo todo, BindingResult result) throws EntityNotFoundException, NullEntityReferenceException {
+
         if (result.hasErrors()) {
             return "create-todo";
         }
@@ -99,6 +100,7 @@ public class ToDoController {
 
     @GetMapping("/{id}/add")
     public String addCollaborator(@PathVariable long id, @RequestParam("user_id") long userId) throws EntityNotFoundException, NullEntityReferenceException {
+
         ToDo todo = todoService.readById(id);
         List<User> collaborators = todo.getCollaborators();
         collaborators.add(userService.readById(userId));
@@ -109,6 +111,7 @@ public class ToDoController {
 
     @GetMapping("/{id}/remove")
     public String removeCollaborator(@PathVariable long id, @RequestParam("user_id") long userId) throws EntityNotFoundException, NullEntityReferenceException {
+
         ToDo todo = todoService.readById(id);
         List<User> collaborators = todo.getCollaborators();
         collaborators.remove(userService.readById(userId));

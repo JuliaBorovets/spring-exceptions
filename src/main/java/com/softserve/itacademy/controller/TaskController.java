@@ -65,6 +65,7 @@ public class TaskController {
     @PostMapping("/{task_id}/update/todos/{todo_id}")
     public String update(@PathVariable("task_id") long taskId, @PathVariable("todo_id") long todoId, Model model,
                          @Validated @ModelAttribute("task")TaskDto taskDto, BindingResult result) throws EntityNotFoundException, NullEntityReferenceException {
+
         if (result.hasErrors()) {
             model.addAttribute("priorities", Priority.values());
             model.addAttribute("states", stateService.getAll());

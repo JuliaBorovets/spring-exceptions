@@ -7,6 +7,7 @@ import com.softserve.itacademy.model.ToDo;
 import java.util.List;
 
 public interface ToDoService {
+
     ToDo create(ToDo todo) throws NullEntityReferenceException;
     ToDo readById(long id) throws EntityNotFoundException;
     ToDo update(ToDo todo) throws EntityNotFoundException, NullEntityReferenceException;
