@@ -2,9 +2,9 @@ package com.softserve.itacademy.service.impl;
 
 import com.softserve.itacademy.exception.EntityNotFoundException;
 import com.softserve.itacademy.exception.NullEntityReferenceException;
-import com.softserve.itacademy.model.ToDo;
-import com.softserve.itacademy.repository.ToDoRepository;
-import com.softserve.itacademy.service.ToDoService;
+import com.softserve.itacademy.model.Task;
+import com.softserve.itacademy.repository.TaskRepository;
+import com.softserve.itacademy.service.TaskService;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -12,52 +12,51 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class ToDoServiceImpl implements ToDoService {
+public class TaskServiceImpl implements TaskService {
+    private TaskRepository taskRepository;
 
-    private ToDoRepository todoRepository;
-
-    public ToDoServiceImpl(ToDoRepository todoRepository) {
-        this.todoRepository = todoRepository;
+    public TaskServiceImpl(TaskRepository taskRepository) {
+        this.taskRepository = taskRepository;
     }
 
     @Override
-    public ToDo create(ToDo todo) throws NullEntityReferenceException{
-        if (!todo.getTitle().isEmpty()) {
-            return todoRepository.save(todo);
+    public Task create(Task task) throws NullEntityReferenceException{
+        if (!task.getName().isEmpty()) {
+            return taskRepository.save(task);
         }
-        throw new NullEntityReferenceException("ToDo can't be 'null'!");
+        throw new NullEntityReferenceException("Task can`t be 'null'!");
     }
 
     @Override
-    public ToDo readById(long id) throws EntityNotFoundException {
-        Optional<ToDo> optional = todoRepository.findById(id);
-        return optional.orElseThrow(() -> new EntityNotFoundException("ToDo with id=" + id + " does not exist!"));
+    public Task readById(long id) throws EntityNotFoundException {
+        Optional<Task> optional = taskRepository.findById(id);
+        return optional.orElseThrow(() -> new EntityNotFoundException("Task with id=" + id + " does not exist!"));
     }
 
     @Override
-    public ToDo update(ToDo todo) throws EntityNotFoundException, NullEntityReferenceException {
-        if (!todo.getTitle().isEmpty()) {
-            readById(todo.getId());
-            return todoRepository.save(todo);
+    public Task update(Task task) throws EntityNotFoundException, NullEntityReferenceException {
+            if (!task.getName().isEmpty()) {
+            Task oldTask = readById(task.getId());
+            return taskRepository.save(task);
         }
-        throw new NullEntityReferenceException("ToDo can't be 'null'!");
+        throw new NullEntityReferenceException("Task can`t be 'null'!");
     }
 
     @Override
     public void delete(long id) throws EntityNotFoundException {
-        ToDo todo = readById(id);
-        todoRepository.delete(todo);
+        Task task = readById(id);
+        taskRepository.delete(task);
     }
 
     @Override
-    public List<ToDo> getAll() {
-        List<ToDo> todos = todoRepository.findAll();
-        return todos.isEmpty() ? new ArrayList<>() : todos;
+    public List<Task> getAll() {
+        List<Task> tasks = taskRepository.findAll();
+        return tasks.isEmpty() ? new ArrayList<>() : tasks;
     }
 
     @Override
-    public List<ToDo> getByUserId(long userId) {
-        List<ToDo> todos = todoRepository.getByUserId(userId);
-        return todos.isEmpty() ? new ArrayList<>() : todos;
+    public List<Task> getByTodoId(long todoId) {
+        List<Task> tasks = taskRepository.getByTodoId(todoId);
+        return tasks.isEmpty() ? new ArrayList<>() : tasks;
     }
 }
