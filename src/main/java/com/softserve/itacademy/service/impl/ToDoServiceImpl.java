@@ -21,7 +21,7 @@ public class ToDoServiceImpl implements ToDoService {
     }
 
     @Override
-    public ToDo create(ToDo todo) {
+    public ToDo create(ToDo todo) throws NullEntityReferenceException{
         if (!todo.getTitle().isEmpty()) {
             return todoRepository.save(todo);
         }
@@ -35,7 +35,7 @@ public class ToDoServiceImpl implements ToDoService {
     }
 
     @Override
-    public ToDo update(ToDo todo) throws EntityNotFoundException {
+    public ToDo update(ToDo todo) throws EntityNotFoundException, NullEntityReferenceException {
         if (!todo.getTitle().isEmpty()) {
             readById(todo.getId());
             return todoRepository.save(todo);
