@@ -40,11 +40,8 @@ public class ToDoController {
     }
 
     @PostMapping("/create/users/{owner_id}")
-    public String create(@PathVariable("owner_id") long ownerId, @Validated @ModelAttribute("todo") ToDo todo, BindingResult result) throws EntityNotFoundException, NullEntityReferenceException {
+    public String create(@PathVariable("owner_id") long ownerId, @Validated @ModelAttribute("todo") ToDo todo) throws EntityNotFoundException, NullEntityReferenceException {
 
-        if (result.hasErrors()) {
-            return "create-todo";
-        }
         todo.setCreatedAt(LocalDateTime.now());
         todo.setOwner(userService.readById(ownerId));
         todoService.create(todo);
@@ -72,11 +69,7 @@ public class ToDoController {
 
     @PostMapping("/{todo_id}/update/users/{owner_id}")
     public String update(@PathVariable("todo_id") long todoId, @PathVariable("owner_id") long ownerId,
-                         @Validated @ModelAttribute("todo") ToDo todo, BindingResult result) throws EntityNotFoundException, NullEntityReferenceException {
-        if (result.hasErrors()) {
-            todo.setOwner(userService.readById(ownerId));
-            return "update-todo";
-        }
+                         @Validated @ModelAttribute("todo") ToDo todo) throws EntityNotFoundException, NullEntityReferenceException {
         ToDo oldTodo = todoService.readById(todoId);
         todo.setOwner(oldTodo.getOwner());
         todo.setCollaborators(oldTodo.getCollaborators());
