@@ -1,6 +1,7 @@
 package com.softserve.itacademy.controller;
 
 import com.softserve.itacademy.exception.EntityNotFoundException;
+import com.softserve.itacademy.exception.NullEntityReferenceException;
 import com.softserve.itacademy.model.Task;
 import com.softserve.itacademy.model.ToDo;
 import com.softserve.itacademy.model.User;
@@ -39,7 +40,8 @@ public class ToDoController {
     }
 
     @PostMapping("/create/users/{owner_id}")
-    public String create(@PathVariable("owner_id") long ownerId, @Validated @ModelAttribute("todo") ToDo todo, BindingResult result) throws EntityNotFoundException {
+    public String create(@PathVariable("owner_id") long ownerId, @Validated @ModelAttribute("todo") ToDo todo, BindingResult result) throws EntityNotFoundException, NullEntityReferenceException {
+
         if (result.hasErrors()) {
             return "create-todo";
         }
@@ -70,7 +72,7 @@ public class ToDoController {
 
     @PostMapping("/{todo_id}/update/users/{owner_id}")
     public String update(@PathVariable("todo_id") long todoId, @PathVariable("owner_id") long ownerId,
-                         @Validated @ModelAttribute("todo") ToDo todo, BindingResult result) throws EntityNotFoundException {
+                         @Validated @ModelAttribute("todo") ToDo todo, BindingResult result) throws EntityNotFoundException, NullEntityReferenceException {
         if (result.hasErrors()) {
             todo.setOwner(userService.readById(ownerId));
             return "update-todo";
@@ -97,7 +99,8 @@ public class ToDoController {
     }
 
     @GetMapping("/{id}/add")
-    public String addCollaborator(@PathVariable long id, @RequestParam("user_id") long userId) throws EntityNotFoundException {
+    public String addCollaborator(@PathVariable long id, @RequestParam("user_id") long userId) throws EntityNotFoundException, NullEntityReferenceException {
+
         ToDo todo = todoService.readById(id);
         List<User> collaborators = todo.getCollaborators();
         collaborators.add(userService.readById(userId));
@@ -107,7 +110,8 @@ public class ToDoController {
     }
 
     @GetMapping("/{id}/remove")
-    public String removeCollaborator(@PathVariable long id, @RequestParam("user_id") long userId) throws EntityNotFoundException {
+    public String removeCollaborator(@PathVariable long id, @RequestParam("user_id") long userId) throws EntityNotFoundException, NullEntityReferenceException {
+
         ToDo todo = todoService.readById(id);
         List<User> collaborators = todo.getCollaborators();
         collaborators.remove(userService.readById(userId));

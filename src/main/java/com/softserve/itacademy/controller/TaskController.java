@@ -3,6 +3,7 @@ package com.softserve.itacademy.controller;
 import com.softserve.itacademy.dto.TaskDto;
 import com.softserve.itacademy.dto.TaskTransformer;
 import com.softserve.itacademy.exception.EntityNotFoundException;
+import com.softserve.itacademy.exception.NullEntityReferenceException;
 import com.softserve.itacademy.model.Priority;
 import com.softserve.itacademy.model.Task;
 import com.softserve.itacademy.service.StateService;
@@ -37,7 +38,7 @@ public class TaskController {
 
     @PostMapping("/create/todos/{todo_id}")
     public String create(@PathVariable("todo_id") long todoId, Model model,
-                         @Validated @ModelAttribute("task") TaskDto taskDto, BindingResult result) throws EntityNotFoundException {
+                         @Validated @ModelAttribute("task") TaskDto taskDto, BindingResult result) throws EntityNotFoundException, NullEntityReferenceException {
         if (result.hasErrors()) {
             model.addAttribute("todo", todoService.readById(todoId));
             model.addAttribute("priorities", Priority.values());
@@ -63,7 +64,8 @@ public class TaskController {
 
     @PostMapping("/{task_id}/update/todos/{todo_id}")
     public String update(@PathVariable("task_id") long taskId, @PathVariable("todo_id") long todoId, Model model,
-                         @Validated @ModelAttribute("task")TaskDto taskDto, BindingResult result) throws EntityNotFoundException {
+                         @Validated @ModelAttribute("task")TaskDto taskDto, BindingResult result) throws EntityNotFoundException, NullEntityReferenceException {
+
         if (result.hasErrors()) {
             model.addAttribute("priorities", Priority.values());
             model.addAttribute("states", stateService.getAll());

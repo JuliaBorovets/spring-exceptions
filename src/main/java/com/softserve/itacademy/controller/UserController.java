@@ -1,6 +1,7 @@
 package com.softserve.itacademy.controller;
 
 import com.softserve.itacademy.exception.EntityNotFoundException;
+import com.softserve.itacademy.exception.NullEntityReferenceException;
 import com.softserve.itacademy.model.User;
 import com.softserve.itacademy.service.RoleService;
 import com.softserve.itacademy.service.UserService;
@@ -29,7 +30,7 @@ public class UserController {
     }
 
     @PostMapping("/create")
-    public String create(@Validated @ModelAttribute("user") User user, BindingResult result) throws EntityNotFoundException {
+    public String create(@Validated @ModelAttribute("user") User user, BindingResult result) throws EntityNotFoundException, NullEntityReferenceException {
         if (result.hasErrors()) {
             return "create-user";
         }
