@@ -20,7 +20,7 @@ public class ToDoServiceImpl implements ToDoService {
 
     @Override
     public ToDo create(ToDo todo) {
-        if (todo != null) {
+        if (!todo.getTitle().isEmpty()) {
             return todoRepository.save(todo);
         }
         throw new NullEntityReferenceException("ToDo can't be 'null'!");
@@ -34,7 +34,7 @@ public class ToDoServiceImpl implements ToDoService {
 
     @Override
     public ToDo update(ToDo todo) {
-        if (todo != null) {
+        if (!todo.getTitle().isEmpty()) {
             if (todoRepository.findById(todo.getId()).isPresent()) {
                 return todoRepository.save(todo);
             } else {
