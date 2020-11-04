@@ -20,7 +20,7 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public Task create(Task task) {
+    public Task create(Task task) throws NullEntityReferenceException{
         if (!task.getName().isEmpty()) {
             return taskRepository.save(task);
         }
@@ -34,7 +34,7 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public Task update(Task task) throws EntityNotFoundException {
+    public Task update(Task task) throws EntityNotFoundException, NullEntityReferenceException {
 
             if (!task.getName().isEmpty()) {
 
