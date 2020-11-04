@@ -30,10 +30,7 @@ public class UserController {
     }
 
     @PostMapping("/create")
-    public String create(@Validated @ModelAttribute("user") User user, BindingResult result) throws EntityNotFoundException, NullEntityReferenceException {
-        if (result.hasErrors()) {
-            return "create-user";
-        }
+    public String create(@Validated @ModelAttribute("user") User user) throws EntityNotFoundException, NullEntityReferenceException {
         user.setPassword(user.getPassword());
         user.setRole(roleService.readById(2));
         User newUser = userService.create(user);
