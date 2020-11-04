@@ -19,7 +19,7 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public Task create(Task task) {
-        if (task != null) {
+        if (!task.getName().isEmpty()) {
             return taskRepository.save(task);
         }
         throw new NullEntityReferenceException("Task can`t be 'null'!");
@@ -33,7 +33,7 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public Task update(Task task) {
-            if (task != null) {
+            if (!task.getName().isEmpty()) {
             Task oldTask = readById(task.getId());
             if (oldTask != null) {
                 return taskRepository.save(task);
