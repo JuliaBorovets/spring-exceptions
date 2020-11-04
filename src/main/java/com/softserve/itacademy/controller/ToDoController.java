@@ -1,87 +1,119 @@
 package com.softserve.itacademy.controller;
 
-import com.softserve.itacademy.dto.TaskDto;
-import com.softserve.itacademy.dto.TaskTransformer;
 import com.softserve.itacademy.exception.EntityNotFoundException;
 import com.softserve.itacademy.exception.NullEntityReferenceException;
-import com.softserve.itacademy.model.Priority;
 import com.softserve.itacademy.model.Task;
-import com.softserve.itacademy.service.StateService;
+import com.softserve.itacademy.model.ToDo;
+import com.softserve.itacademy.model.User;
 import com.softserve.itacademy.service.TaskService;
 import com.softserve.itacademy.service.ToDoService;
+import com.softserve.itacademy.service.UserService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Controller
-@RequestMapping("/tasks")
-public class TaskController {
-    private final TaskService taskService;
+@RequestMapping("/todos")
+public class ToDoController {
+
     private final ToDoService todoService;
-    private final StateService stateService;
+    private final TaskService taskService;
+    private final UserService userService;
 
-    public TaskController(TaskService taskService, ToDoService todoService, StateService stateService) {
-        this.taskService = taskService;
+    public ToDoController(ToDoService todoService, TaskService taskService, UserService userService) {
         this.todoService = todoService;
-        this.stateService = stateService;
+        this.taskService = taskService;
+        this.userService = userService;
     }
 
-    @GetMapping("/create/todos/{todo_id}")
-    public String create(@PathVariable("todo_id") long todoId, Model model) throws EntityNotFoundException {
-        model.addAttribute("task", new TaskDto());
-        model.addAttribute("todo", todoService.readById(todoId));
-        model.addAttribute("priorities", Priority.values());
-        return "create-task";
+    @GetMapping("/create/users/{owner_id}")
+    public String create(@PathVariable("owner_id") long ownerId, Model model) {
+        model.addAttribute("todo", new ToDo());
+        model.addAttribute("ownerId", ownerId);
+        return "create-todo";
     }
 
-    @PostMapping("/create/todos/{todo_id}")
-    public String create(@PathVariable("todo_id") long todoId, Model model,
-                         @Validated @ModelAttribute("task") TaskDto taskDto, BindingResult result) throws EntityNotFoundException, NullEntityReferenceException {
+    @PostMapping("/create/users/{owner_id}")
+    public String create(@PathVariable("owner_id") long ownerId, @Validated @ModelAttribute("todo") ToDo todo, BindingResult result) throws EntityNotFoundException, NullEntityReferenceException {
         if (result.hasErrors()) {
-            model.addAttribute("todo", todoService.readById(todoId));
-            model.addAttribute("priorities", Priority.values());
-            return "create-task";
+            return "create-todo";
         }
-        Task task = TaskTransformer.convertToEntity(
-                taskDto,
-                todoService.readById(taskDto.getTodoId()),
-                stateService.getByName("New")
-        );
-        taskService.create(task);
-        return "redirect:/todos/" + todoId + "/tasks";
+        todo.setCreatedAt(LocalDateTime.now());
+        todo.setOwner(userService.readById(ownerId));
+        todoService.create(todo);
+        return "redirect:/todos/all/users/" + ownerId;
     }
 
-    @GetMapping("/{task_id}/update/todos/{todo_id}")
-    public String update(@PathVariable("task_id") long taskId, @PathVariable("todo_id") long todoId, Model model) throws EntityNotFoundException {
-        TaskDto taskDto = TaskTransformer.convertToDto(taskService.readById(taskId));
-        model.addAttribute("task", taskDto);
-        model.addAttribute("priorities", Priority.values());
-        model.addAttribute("states", stateService.getAll());
-        return "update-task";
+    @GetMapping("/{id}/tasks")
+    public String read(@PathVariable long id, Model model) throws EntityNotFoundException {
+        ToDo todo = todoService.readById(id);
+        List<Task> tasks = taskService.getByTodoId(id);
+        List<User> users = userService.getAll().stream()
+                .filter(user -> user.getId() != todo.getOwner().getId()).collect(Collectors.toList());
+        model.addAttribute("todo", todo);
+        model.addAttribute("tasks", tasks);
+        model.addAttribute("users", users);
+        return "todo-tasks";
     }
 
-    @PostMapping("/{task_id}/update/todos/{todo_id}")
-    public String update(@PathVariable("task_id") long taskId, @PathVariable("todo_id") long todoId, Model model,
-                         @Validated @ModelAttribute("task")TaskDto taskDto, BindingResult result) throws EntityNotFoundException, NullEntityReferenceException {
+    @GetMapping("/{todo_id}/update/users/{owner_id}")
+    public String update(@PathVariable("todo_id") long todoId, @PathVariable("owner_id") long ownerId, Model model) throws EntityNotFoundException {
+        ToDo todo = todoService.readById(todoId);
+        model.addAttribute("todo", todo);
+        return "update-todo";
+    }
+
+    @PostMapping("/{todo_id}/update/users/{owner_id}")
+    public String update(@PathVariable("todo_id") long todoId, @PathVariable("owner_id") long ownerId,
+                         @Validated @ModelAttribute("todo") ToDo todo, BindingResult result) throws EntityNotFoundException, NullEntityReferenceException {
         if (result.hasErrors()) {
-            model.addAttribute("priorities", Priority.values());
-            model.addAttribute("states", stateService.getAll());
-            return "update-task";
+            todo.setOwner(userService.readById(ownerId));
+            return "update-todo";
         }
-        Task task = TaskTransformer.convertToEntity(
-                taskDto,
-                todoService.readById(taskDto.getTodoId()),
-                stateService.readById(taskDto.getStateId())
-        );
-        taskService.update(task);
-        return "redirect:/todos/" + todoId + "/tasks";
+        ToDo oldTodo = todoService.readById(todoId);
+        todo.setOwner(oldTodo.getOwner());
+        todo.setCollaborators(oldTodo.getCollaborators());
+        todoService.update(todo);
+        return "redirect:/todos/all/users/" + ownerId;
     }
 
-    @GetMapping("/{task_id}/delete/todos/{todo_id}")
-    public String delete(@PathVariable("task_id") long taskId, @PathVariable("todo_id") long todoId) throws EntityNotFoundException {
-        taskService.delete(taskId);
-        return "redirect:/todos/" + todoId + "/tasks";
+    @GetMapping("/{todo_id}/delete/users/{owner_id}")
+    public String delete(@PathVariable("todo_id") long todoId, @PathVariable("owner_id") long ownerId) throws EntityNotFoundException {
+        todoService.delete(todoId);
+        return "redirect:/todos/all/users/" + ownerId;
+    }
+
+    @GetMapping("/all/users/{user_id}")
+    public String getAll(@PathVariable("user_id") long userId, Model model) throws EntityNotFoundException {
+        List<ToDo> todos = todoService.getByUserId(userId);
+        model.addAttribute("todos", todos);
+        model.addAttribute("user", userService.readById(userId));
+        return "todos-user";
+    }
+
+    @GetMapping("/{id}/add")
+    public String addCollaborator(@PathVariable long id, @RequestParam("user_id") long userId) throws EntityNotFoundException, NullEntityReferenceException {
+        ToDo todo = todoService.readById(id);
+        List<User> collaborators = todo.getCollaborators();
+        collaborators.add(userService.readById(userId));
+        todo.setCollaborators(collaborators);
+        todoService.update(todo);
+        return "redirect:/todos/" + id + "/tasks";
+    }
+
+    @GetMapping("/{id}/remove")
+    public String removeCollaborator(@PathVariable long id, @RequestParam("user_id") long userId) throws EntityNotFoundException, NullEntityReferenceException {
+        ToDo todo = todoService.readById(id);
+        List<User> collaborators = todo.getCollaborators();
+        collaborators.remove(userService.readById(userId));
+        todo.setCollaborators(collaborators);
+        todoService.update(todo);
+        return "redirect:/todos/" + id + "/tasks";
     }
 }
