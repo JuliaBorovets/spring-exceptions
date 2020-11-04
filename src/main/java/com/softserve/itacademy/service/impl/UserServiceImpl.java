@@ -21,7 +21,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User create(User user) {
+    public User create(User user) throws NullEntityReferenceException{
         if (!user.getPassword().isEmpty()) {
             return userRepository.save(user);
         }
@@ -35,7 +35,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User update(User user) throws EntityNotFoundException {
+    public User update(User user) throws EntityNotFoundException, NullEntityReferenceException {
         if (!user.getPassword().isEmpty()) {
 
             Optional.ofNullable(userRepository.getUserByEmail(user.getEmail()))
